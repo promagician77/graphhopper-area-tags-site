@@ -1,0 +1,10 @@
+{
+  "name": "graphhopper-area-tags-demo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "GraphHopper 11 area tags at import: prebuilt static site in site/.",
+  "scripts": {
+    "build": "node init && echo 'prebuilt: site/ is committed'",
+    "start": "node init && npx --yes serve site"
+  }
+}

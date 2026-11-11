@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Area tags at import: GraphHopper 11 measured on the Isle of Wight</title>
+<meta name="description" content="Four yes/no area tags worked out at import in GraphHopper 11.0, checked against request-time polygons on real UK OSM data: same routes, 10.3× less routing time.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23c9dbe2'/%3E%3Cpath d='M6 22 C10 10 18 8 26 12' stroke='%231f5fa8' stroke-width='4' fill='none'/%3E%3Crect x='14' y='6' width='14' height='16' fill='none' stroke='%23a8236f' stroke-width='2.5' stroke-dasharray='4 2'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/archivo-latin-standard-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="chart">
+  <div class="stage">
+    <canvas id="map" tabindex="0" aria-label="Map of the Isle of Wight road network with the four test areas and the selected test route. Arrow keys pan, plus and minus zoom, 0 fits the island."></canvas>
+    <p class="loading">Drawing the island</p>
+    <div class="zoom"><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="zoom-fit" type="button" aria-label="Show the whole island">⌂</button></div>
+    <p class="attrib">Map data © OpenStreetMap contributors, ODbL</p>
+  </div>
+  <section class="cartouche" aria-labelledby="title">
+    <div class="cartouche-inner">
+      <h1 id="title">Area tags at import</h1>
+      <p class="sub">GraphHopper 11.0, built from its source tag, on real UK roads: the Isle of Wight OSM extract, four real boundaries and 27 test journeys.</p>
+      <ul class="findings">
+        <li><b>27 of 27</b><span>routes identical to the polygon method: every point, distance, time and weight</span></li>
+        <li><b>10.3× less</b><span>routing time: 817 ms down to 80 ms over the 27 journeys</span></li>
+        <li><b>0 of 202,292</b><span>edge checks disagree with GraphHopper's own request-time test</span></li>
+        <li><b>283 bytes</b><span>per request instead of 271,950: no polygons sent</span></li>
+      </ul>
+      <p class="by">Built for the GraphHopper area-tags brief by James.</p>
+    </div>
+  </section>
+  <nav class="console" aria-label="Test journeys and map layers">
+    <h2>27 test journeys</h2>
+    <ul class="journeys" id="journeys"></ul>
+    <div class="layers">
+      <fieldset>
+        <legend>On the map</legend>
+        <label><input type="checkbox" id="layer-areas" checked> The four areas</label>
+        <label><input type="checkbox" id="layer-none" checked> Route without the area rule</label>
+        <label><input type="checkbox" id="layer-wrong"> 475 roads the shortcut gets wrong</label>
+        <label>Roads tagged
+          <select id="layer-tagged"><option value="">none</option><option value="0">area_newport</option><option value="1">area_ryde</option><option value="2">area_aonb</option><option value="3">area_seaview</option></select>
+        </label>
+      </fieldset>
+    </div>
+  </nav>
+  <div class="readout" id="readout" aria-live="polite"></div>
+</header>
+
+<main>
+  <section class="section" id="same">
+    <div class="lede">
+      <h2>Same routes as the polygons</h2>
+      <p>Each of the 27 journeys was routed with the same rule written two ways: polygons sent in the request (<code>in_newport</code>) and tags worked out at import (<code>area_newport</code>). All 27 pairs match exactly. Every coordinate, the distance, the time and the route weight are identical, in flexible mode and with landmarks (27 of 27).</p>
+      <p>The test has teeth: the rule changes the route on 14 of the 27 journeys compared with no area rule, so a wrong tag would show.</p>
+      <p class="note">The rule: priority ×0.7 in the AONB, ×0.4 in Newport, ×0.2 in Seaview, and speed limited to 30 km/h in Ryde, on GraphHopper's own car profile.</p>
+    </div>
+    <div class="fig">
+      <h3>Every edge, every area</h3>
+      <p class="cap">After import, each stored tag was compared with GraphHopper's own request-time test (<code>CustomWeightingHelper.in</code>) on the stored geometry.</p>
+      <div class="big">
+        <div><b>50,573</b><span>edges in the graph</span></div>
+        <div><b>202,292</b><span>edge and area checks</span></div>
+        <div><b>0</b><span>disagree</span></div>
+      </div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Edge checks by area"><table class="data">
+        <thead><tr><th class="l">Tag</th><th class="l">Boundary from OSM</th><th>Vertices</th><th>Parts</th><th>Edges inside</th><th>Tags disagree</th><th>Shortcut disagrees</th></tr></thead>
+        <tbody><tr><td class="l"><code>area_newport</code></td><td class="l">Newport</td><td>1,371</td><td>1</td><td>7,488</td><td>0</td><td>76</td></tr><tr><td class="l"><code>area_ryde</code></td><td class="l">Ryde</td><td>1,475</td><td>1</td><td>3,706</td><td>0</td><td>37</td></tr><tr><td class="l"><code>area_aonb</code></td><td class="l">Isle of Wight AONB</td><td>7,059</td><td>7</td><td>15,585</td><td>0</td><td>659</td></tr><tr><td class="l"><code>area_seaview</code></td><td class="l">Nettlestone and Seaview</td><td>593</td><td>2</td><td>1,129</td><td>0</td><td>29</td></tr></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="section" id="speed">
+    <div class="lede">
+      <h2>10.3× less routing time</h2>
+      <p>With polygons in the request, GraphHopper builds a prepared polygon for each area on every request, then tests every edge the search touches against it. With tags, the same check is reading 4 bits already stored on the edge.</p>
+      <p>The 27 journeys took 817 ms with polygons and 80 ms with tags (sum of per-journey medians, 25 runs each, flexible mode). The slowest single route fell from 49.9 ms to 6.2 ms. With landmarks the gain was 9.1×.</p>
+      <p class="note">Before any routing, the polygon request also has 250,777 bytes of areas JSON to parse: 3.3 ms in GraphHopper's own mapper, against 0.004 ms with tags. That cost is not included above.</p>
+    </div>
+    <div class="fig">
+      <h3 id="speed-title">Routing time per journey, median of 25 runs</h3>
+      <p class="cap" id="speed-desc">Flexible mode, log scale. Grey: no area rule. Blue: area tags. Magenta: polygons in the request.</p>
+      <ul class="legend"><li><span class="dot" style="background:#6b7a83"></span>No area rule</li><li><span class="dot" style="background:#1f5fa8"></span>Area tags</li><li><span class="dot" style="background:#a8236f"></span>Polygons in request</li></ul>
+      <svg viewBox="0 0 680 523" role="img" aria-labelledby="speed-title speed-desc"><line x1="210" x2="210" y1="26" y2="499" stroke="#e1e8ea"/><text x="210" y="515" text-anchor="middle" font-size="12">0.5 ms</text><line x1="271.459221419317" x2="271.459221419317" y1="26" y2="499" stroke="#e1e8ea"/><text x="271.459221419317" y="515" text-anchor="middle" font-size="12">1 ms</text><line x1="332.91844283863395" x2="332.91844283863395" y1="26" y2="499" stroke="#e1e8ea"/><text x="332.91844283863395" y="515" text-anchor="middle" font-size="12">2 ms</text><line x1="414.1631143227322" x2="414.1631143227322" y1="26" y2="499" stroke="#e1e8ea"/><text x="414.1631143227322" y="515" text-anchor="middle" font-size="12">5 ms</text><line x1="475.62233574204913" x2="475.62233574204913" y1="26" y2="499" stroke="#e1e8ea"/><text x="475.62233574204913" y="515" text-anchor="middle" font-size="12">10 ms</text><line x1="537.0815571613662" x2="537.0815571613662" y1="26" y2="499" stroke="#e1e8ea"/><text x="537.0815571613662" y="515" text-anchor="middle" font-size="12">20 ms</text><line x1="618.3262286454644" x2="618.3262286454644" y1="26" y2="499" stroke="#e1e8ea"/><text x="618.3262286454644" y="515" text-anchor="middle" font-size="12">50 ms</text><text x="200" y="46.5" text-anchor="end" font-size="12">J01 Rookley Green → Chale Green</text><line x1="268.7584974900248" x2="538.1830236732266" y1="42.5" y2="42.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="268.8" cy="42.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J01 Rookley Green → Chale Green: no area rule 1.0 ms (median of 25)"/><circle cx="280.6" cy="42.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J01 Rookley Green → Chale Green: area tags 1.1 ms (median of 25)"/><circle cx="538.2" cy="42.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J01 Rookley Green → Chale Green: polygons in request 20.3 ms (median of 25)"/><text x="200" y="63.5" text-anchor="end" font-size="12">J02 Newbridge → Porchfield</text><line x1="262.8041931209164" x2="536.5078032142796" y1="59.5" y2="59.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="262.8" cy="59.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J02 Newbridge → Porchfield: no area rule 0.9 ms (median of 25)"/><circle cx="269.6" cy="59.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J02 Newbridge → Porchfield: area tags 1.0 ms (median of 25)"/><circle cx="536.5" cy="59.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J02 Newbridge → Porchfield: polygons in request 19.9 ms (median of 25)"/><text x="200" y="80.5" text-anchor="end" font-size="12">J03 Brook → Freshwater</text><line x1="261.91997280074696" x2="526.2843891502966" y1="76.5" y2="76.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="261.9" cy="76.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J03 Brook → Freshwater: no area rule 0.9 ms (median of 25)"/><circle cx="269.2" cy="76.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J03 Brook → Freshwater: area tags 1.0 ms (median of 25)"/><circle cx="526.3" cy="76.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J03 Brook → Freshwater: polygons in request 17.7 ms (median of 25)"/><text x="200" y="97.5" text-anchor="end" font-size="12">J04 Blackwater → Northwood</text><line x1="247.35878073769362" x2="545.1972679783795" y1="93.5" y2="93.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="247.4" cy="93.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J04 Blackwater → Northwood: no area rule 0.8 ms (median of 25)"/><circle cx="304.3" cy="93.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J04 Blackwater → Northwood: area tags 1.4 ms (median of 25)"/><circle cx="545.2" cy="93.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J04 Blackwater → Northwood: polygons in request 21.9 ms (median of 25)"/><text x="200" y="114.5" text-anchor="end" font-size="12">J05 Lake → Nettlestone</text><line x1="316.8234582224741" x2="542.1183320877586" y1="110.5" y2="110.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="328.5" cy="110.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J05 Lake → Nettlestone: no area rule 1.9 ms (median of 25)"/><circle cx="316.8" cy="110.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J05 Lake → Nettlestone: area tags 1.7 ms (median of 25)"/><circle cx="542.1" cy="110.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J05 Lake → Nettlestone: polygons in request 21.2 ms (median of 25)"/><text x="200" y="131.5" text-anchor="end" font-size="12">J06 Arreton → Northwood</text><line x1="274.16615181536235" x2="556.3048540488069" y1="127.5" y2="127.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="274.2" cy="127.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J06 Arreton → Northwood: no area rule 1.0 ms (median of 25)"/><circle cx="327.0" cy="127.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J06 Arreton → Northwood: area tags 1.9 ms (median of 25)"/><circle cx="556.3" cy="127.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J06 Arreton → Northwood: polygons in request 24.8 ms (median of 25)"/><text x="200" y="148.5" text-anchor="end" font-size="12">J07 Newtown → Blackwater</text><line x1="276.7928841182445" x2="556.4368174615313" y1="144.5" y2="144.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="276.8" cy="144.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J07 Newtown → Blackwater: no area rule 1.1 ms (median of 25)"/><circle cx="323.7" cy="144.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J07 Newtown → Blackwater: area tags 1.8 ms (median of 25)"/><circle cx="556.4" cy="144.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J07 Newtown → Blackwater: polygons in request 24.9 ms (median of 25)"/><text x="200" y="165.5" text-anchor="end" font-size="12">J08 Ventnor → Chillerton</text><line x1="307.6466916762307" x2="546.6219407091712" y1="161.5" y2="161.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="307.6" cy="161.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J08 Ventnor → Chillerton: no area rule 1.5 ms (median of 25)"/><circle cx="316.9" cy="161.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J08 Ventnor → Chillerton: area tags 1.7 ms (median of 25)"/><circle cx="546.6" cy="161.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J08 Ventnor → Chillerton: polygons in request 22.3 ms (median of 25)"/><text x="200" y="182.5" text-anchor="end" font-size="12">J09 Brighstone → Merstone</text><line x1="292.16204527145305" x2="541.6774424920311" y1="178.5" y2="178.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="292.2" cy="178.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J09 Brighstone → Merstone: no area rule 1.3 ms (median of 25)"/><circle cx="302.1" cy="178.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J09 Brighstone → Merstone: area tags 1.4 ms (median of 25)"/><circle cx="541.7" cy="178.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J09 Brighstone → Merstone: polygons in request 21.1 ms (median of 25)"/><text x="200" y="199.5" text-anchor="end" font-size="12">J10 Seaview → Whippingham</text><line x1="314.56224862006115" x2="565.0854162043906" y1="195.5" y2="195.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="314.6" cy="195.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J10 Seaview → Whippingham: no area rule 1.6 ms (median of 25)"/><circle cx="345.7" cy="195.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J10 Seaview → Whippingham: area tags 2.3 ms (median of 25)"/><circle cx="565.1" cy="195.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J10 Seaview → Whippingham: polygons in request 27.4 ms (median of 25)"/><text x="200" y="216.5" text-anchor="end" font-size="12">J11 Brading → Chillerton</text><line x1="293.3475427090714" x2="544.6738466253619" y1="212.5" y2="212.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="293.3" cy="212.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J11 Brading → Chillerton: no area rule 1.3 ms (median of 25)"/><circle cx="304.0" cy="212.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J11 Brading → Chillerton: area tags 1.4 ms (median of 25)"/><circle cx="544.7" cy="212.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J11 Brading → Chillerton: polygons in request 21.8 ms (median of 25)"/><text x="200" y="233.5" text-anchor="end" font-size="12">J12 Newport → Upper Bonchurch</text><line x1="374.6753004843893" x2="589.8417480633195" y1="229.5" y2="229.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="374.7" cy="229.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J12 Newport → Upper Bonchurch: no area rule 3.2 ms (median of 25)"/><circle cx="388.1" cy="229.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J12 Newport → Upper Bonchurch: area tags 3.7 ms (median of 25)"/><circle cx="589.8" cy="229.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J12 Newport → Upper Bonchurch: polygons in request 36.3 ms (median of 25)"/><text x="200" y="250.5" text-anchor="end" font-size="12">J13 Freshwater Bay → Gatcombe</text><line x1="297.80546273400597" x2="564.0219663545515" y1="246.5" y2="246.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="297.8" cy="246.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J13 Freshwater Bay → Gatcombe: no area rule 1.3 ms (median of 25)"/><circle cx="352.1" cy="246.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J13 Freshwater Bay → Gatcombe: area tags 2.5 ms (median of 25)"/><circle cx="564.0" cy="246.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J13 Freshwater Bay → Gatcombe: polygons in request 27.1 ms (median of 25)"/><text x="200" y="267.5" text-anchor="end" font-size="12">J14 Yarmouth → Newport</text><line x1="307.76452147956263" x2="573.0594931001592" y1="263.5" y2="263.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="307.8" cy="263.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J14 Yarmouth → Newport: no area rule 1.5 ms (median of 25)"/><circle cx="362.8" cy="263.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J14 Yarmouth → Newport: area tags 2.8 ms (median of 25)"/><circle cx="573.1" cy="263.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J14 Yarmouth → Newport: polygons in request 30.0 ms (median of 25)"/><text x="200" y="284.5" text-anchor="end" font-size="12">J15 Wroxall → Whippingham</text><line x1="297.2768953627028" x2="556.0725497821329" y1="280.5" y2="280.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="297.3" cy="280.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J15 Wroxall → Whippingham: no area rule 1.3 ms (median of 25)"/><circle cx="332.2" cy="280.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J15 Wroxall → Whippingham: area tags 2.0 ms (median of 25)"/><circle cx="556.1" cy="280.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J15 Wroxall → Whippingham: polygons in request 24.8 ms (median of 25)"/><text x="200" y="301.5" text-anchor="end" font-size="12">J16 Ryde → Ventnor</text><line x1="360.86409390512495" x2="569.7145383729096" y1="297.5" y2="297.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="360.9" cy="297.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J16 Ryde → Ventnor: no area rule 2.7 ms (median of 25)"/><circle cx="367.0" cy="297.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J16 Ryde → Ventnor: area tags 2.9 ms (median of 25)"/><circle cx="569.7" cy="297.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J16 Ryde → Ventnor: polygons in request 28.9 ms (median of 25)"/><text x="200" y="318.5" text-anchor="end" font-size="12">J17 Newchurch → Shalfleet</text><line x1="301.92426017551395" x2="580.3453041690475" y1="314.5" y2="314.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="301.9" cy="314.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J17 Newchurch → Shalfleet: no area rule 1.4 ms (median of 25)"/><circle cx="375.0" cy="314.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J17 Newchurch → Shalfleet: area tags 3.2 ms (median of 25)"/><circle cx="580.3" cy="314.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J17 Newchurch → Shalfleet: polygons in request 32.6 ms (median of 25)"/><text x="200" y="335.5" text-anchor="end" font-size="12">J18 Wroxall → Newtown</text><line x1="352.52638150486985" x2="605.7129125814424" y1="331.5" y2="331.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="352.5" cy="331.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J18 Wroxall → Newtown: no area rule 2.5 ms (median of 25)"/><circle cx="416.0" cy="331.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J18 Wroxall → Newtown: area tags 5.1 ms (median of 25)"/><circle cx="605.7" cy="331.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J18 Wroxall → Newtown: polygons in request 43.4 ms (median of 25)"/><text x="200" y="352.5" text-anchor="end" font-size="12">J19 Alverstone → Cranmore</text><line x1="327.1960113379171" x2="597.8151823946855" y1="348.5" y2="348.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="327.2" cy="348.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J19 Alverstone → Cranmore: no area rule 1.9 ms (median of 25)"/><circle cx="408.2" cy="348.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J19 Alverstone → Cranmore: area tags 4.7 ms (median of 25)"/><circle cx="597.8" cy="348.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J19 Alverstone → Cranmore: polygons in request 39.7 ms (median of 25)"/><text x="200" y="369.5" text-anchor="end" font-size="12">J20 Freshwater → Niton</text><line x1="286.5097894087156" x2="547.2922057245355" y1="365.5" y2="365.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="286.5" cy="365.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J20 Freshwater → Niton: no area rule 1.2 ms (median of 25)"/><circle cx="317.7" cy="365.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J20 Freshwater → Niton: area tags 1.7 ms (median of 25)"/><circle cx="547.3" cy="365.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J20 Freshwater → Niton: polygons in request 22.4 ms (median of 25)"/><text x="200" y="386.5" text-anchor="end" font-size="12">J21 Bonchurch → Gurnard</text><line x1="397.1275846737275" x2="610.428517678735" y1="382.5" y2="382.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="397.1" cy="382.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J21 Bonchurch → Gurnard: no area rule 4.1 ms (median of 25)"/><circle cx="427.8" cy="382.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J21 Bonchurch → Gurnard: area tags 5.8 ms (median of 25)"/><circle cx="610.4" cy="382.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J21 Bonchurch → Gurnard: polygons in request 45.7 ms (median of 25)"/><text x="200" y="403.5" text-anchor="end" font-size="12">J22 St Helens → Calbourne</text><line x1="346.64981880515364" x2="618.0473765083045" y1="399.5" y2="399.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="346.6" cy="399.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J22 St Helens → Calbourne: no area rule 2.3 ms (median of 25)"/><circle cx="433.7" cy="399.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J22 St Helens → Calbourne: area tags 6.2 ms (median of 25)"/><circle cx="618.0" cy="399.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J22 St Helens → Calbourne: polygons in request 49.8 ms (median of 25)"/><text x="200" y="420.5" text-anchor="end" font-size="12">J23 Newchurch → Easton</text><line x1="348.0811764520464" x2="589.3341467713265" y1="416.5" y2="416.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="348.1" cy="416.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J23 Newchurch → Easton: no area rule 2.4 ms (median of 25)"/><circle cx="396.9" cy="416.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J23 Newchurch → Easton: area tags 4.1 ms (median of 25)"/><circle cx="589.3" cy="416.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J23 Newchurch → Easton: polygons in request 36.1 ms (median of 25)"/><text x="200" y="437.5" text-anchor="end" font-size="12">J24 Totland → Whitwell</text><line x1="313.0775586276528" x2="555.382783024934" y1="433.5" y2="433.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="313.1" cy="433.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J24 Totland → Whitwell: no area rule 1.6 ms (median of 25)"/><circle cx="339.5" cy="433.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J24 Totland → Whitwell: area tags 2.2 ms (median of 25)"/><circle cx="555.4" cy="433.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J24 Totland → Whitwell: polygons in request 24.6 ms (median of 25)"/><text x="200" y="454.5" text-anchor="end" font-size="12">J25 Winford → Totland</text><line x1="373.1677032853153" x2="588.0086090153688" y1="450.5" y2="450.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="373.2" cy="450.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J25 Winford → Totland: no area rule 3.1 ms (median of 25)"/><circle cx="398.2" cy="450.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J25 Winford → Totland: area tags 4.2 ms (median of 25)"/><circle cx="588.0" cy="450.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J25 Winford → Totland: polygons in request 35.5 ms (median of 25)"/><text x="200" y="471.5" text-anchor="end" font-size="12">J26 Colwell Bay → Binstead</text><line x1="379.75873845625654" x2="612.4656055709527" y1="467.5" y2="467.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="379.8" cy="467.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J26 Colwell Bay → Binstead: no area rule 3.4 ms (median of 25)"/><circle cx="425.5" cy="467.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J26 Colwell Bay → Binstead: area tags 5.7 ms (median of 25)"/><circle cx="612.5" cy="467.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J26 Colwell Bay → Binstead: polygons in request 46.8 ms (median of 25)"/><text x="200" y="488.5" text-anchor="end" font-size="12">J27 Ryde → Easton</text><line x1="391.0117346462541" x2="618.0633853799188" y1="484.5" y2="484.5" stroke="#c9d3d7" stroke-width="2"/><circle cx="391.0" cy="484.5" r="4.2" fill="#6b7a83" stroke="#fff" stroke-width="1.5" data-tip="J27 Ryde → Easton: no area rule 3.9 ms (median of 25)"/><circle cx="432.8" cy="484.5" r="4.8" fill="#1f5fa8" stroke="#fff" stroke-width="1.5" data-tip="J27 Ryde → Easton: area tags 6.2 ms (median of 25)"/><circle cx="618.1" cy="484.5" r="4.8" fill="#a8236f" stroke="#fff" stroke-width="1.5" data-tip="J27 Ryde → Easton: polygons in request 49.9 ms (median of 25)"/><text x="538.1830236732266" y="18" text-anchor="middle" font-size="12" font-weight="600" fill="#a8236f">polygons</text><text x="288.63258581246504" y="18" text-anchor="start" font-size="12" font-weight="600" fill="#1f5fa8">tags</text></svg>
+      <details><summary>Table view: all 27 journeys</summary><div class="scroll" tabindex="0" role="region" aria-label="All journeys, table view"><table class="data">
+        <thead><tr><th>Id</th><th class="l">Journey</th><th>km</th><th>min</th><th>Same route</th><th>Rule changes route</th><th>ms no rule</th><th>ms tags</th><th>ms polygons</th><th>Tags ÷ no rule</th><th>Tag test only ÷ no rule</th><th>Roads visited, no rule</th><th>Roads visited, rule</th><th>Shortcut</th></tr></thead>
+        <tbody><tr><td>J01</td><td class="l">Rookley Green → Chale Green</td><td>5.63</td><td>4.2</td><td>yes</td><td>no</td><td>1.0</td><td>1.1</td><td>20.3</td><td>1.14</td><td>1.27</td><td>158</td><td>186</td><td>same</td></tr><tr><td>J02</td><td class="l">Newbridge → Porchfield</td><td>6.38</td><td>4.8</td><td>yes</td><td>no</td><td>0.9</td><td>1.0</td><td>19.9</td><td>1.08</td><td>1.06</td><td>192</td><td>186</td><td>same</td></tr><tr><td>J03</td><td class="l">Brook → Freshwater</td><td>7.65</td><td>6.7</td><td>yes</td><td>no</td><td>0.9</td><td>1.0</td><td>17.7</td><td>1.09</td><td>1.12</td><td>464</td><td>558</td><td>same</td></tr><tr><td>J04</td><td class="l">Blackwater → Northwood</td><td>8.36</td><td>9.2</td><td>yes</td><td>no</td><td>0.8</td><td>1.4</td><td>21.9</td><td>1.90</td><td>1.19</td><td>620</td><td>1,932</td><td>same</td></tr><tr><td>J05</td><td class="l">Lake → Nettlestone</td><td>10.98</td><td>13.8</td><td>yes</td><td>no</td><td>1.9</td><td>1.7</td><td>21.2</td><td>0.88</td><td>1.15</td><td>3,186</td><td>2,062</td><td>same</td></tr><tr><td>J06</td><td class="l">Arreton → Northwood</td><td>11.03</td><td>11.4</td><td>yes</td><td>yes</td><td>1.0</td><td>1.9</td><td>24.8</td><td>1.81</td><td>1.10</td><td>1,204</td><td>2,794</td><td>same</td></tr><tr><td>J07</td><td class="l">Newtown → Blackwater</td><td>12.78</td><td>11.7</td><td>yes</td><td>yes</td><td>1.1</td><td>1.8</td><td>24.9</td><td>1.70</td><td>1.13</td><td>1,440</td><td>2,662</td><td>same</td></tr><tr><td>J08</td><td class="l">Ventnor → Chillerton</td><td>14.15</td><td>15.3</td><td>yes</td><td>no</td><td>1.5</td><td>1.7</td><td>22.3</td><td>1.11</td><td>1.08</td><td>2,046</td><td>2,018</td><td>same</td></tr><tr><td>J09</td><td class="l">Brighstone → Merstone</td><td>16.60</td><td>13.8</td><td>yes</td><td>no</td><td>1.3</td><td>1.4</td><td>21.1</td><td>1.12</td><td>1.18</td><td>1,860</td><td>1,880</td><td>same</td></tr><tr><td>J10</td><td class="l">Seaview → Whippingham</td><td>13.48</td><td>20.7</td><td>yes</td><td>yes</td><td>1.6</td><td>2.3</td><td>27.4</td><td>1.42</td><td>1.12</td><td>2,660</td><td>3,664</td><td>other path</td></tr><tr><td>J11</td><td class="l">Brading → Chillerton</td><td>16.94</td><td>13.6</td><td>yes</td><td>no</td><td>1.3</td><td>1.4</td><td>21.8</td><td>1.13</td><td>1.10</td><td>1,846</td><td>1,888</td><td>same</td></tr><tr><td>J12</td><td class="l">Newport → Upper Bonchurch</td><td>18.52</td><td>18.4</td><td>yes</td><td>yes</td><td>3.2</td><td>3.7</td><td>36.3</td><td>1.16</td><td>1.11</td><td>6,288</td><td>6,548</td><td>same</td></tr><tr><td>J13</td><td class="l">Freshwater Bay → Gatcombe</td><td>23.32</td><td>18.4</td><td>yes</td><td>yes</td><td>1.3</td><td>2.5</td><td>27.1</td><td>1.85</td><td>1.15</td><td>2,148</td><td>4,044</td><td>same</td></tr><tr><td>J14</td><td class="l">Yarmouth → Newport</td><td>16.38</td><td>15.1</td><td>yes</td><td>no</td><td>1.5</td><td>2.8</td><td>30.0</td><td>1.86</td><td>1.12</td><td>2,078</td><td>4,056</td><td>same</td></tr><tr><td>J15</td><td class="l">Wroxall → Whippingham</td><td>16.95</td><td>15.2</td><td>yes</td><td>yes</td><td>1.3</td><td>2.0</td><td>24.8</td><td>1.48</td><td>1.13</td><td>2,008</td><td>2,980</td><td>same</td></tr><tr><td>J16</td><td class="l">Ryde → Ventnor</td><td>19.59</td><td>21.8</td><td>yes</td><td>no</td><td>2.7</td><td>2.9</td><td>28.9</td><td>1.07</td><td>1.08</td><td>5,012</td><td>4,638</td><td>other time</td></tr><tr><td>J17</td><td class="l">Newchurch → Shalfleet</td><td>18.56</td><td>16.0</td><td>yes</td><td>yes</td><td>1.4</td><td>3.2</td><td>32.6</td><td>2.28</td><td>1.11</td><td>1,876</td><td>4,744</td><td>same</td></tr><tr><td>J18</td><td class="l">Wroxall → Newtown</td><td>22.45</td><td>21.8</td><td>yes</td><td>yes</td><td>2.5</td><td>5.1</td><td>43.4</td><td>2.05</td><td>1.08</td><td>4,108</td><td>8,316</td><td>same</td></tr><tr><td>J19</td><td class="l">Alverstone → Cranmore</td><td>24.57</td><td>22.2</td><td>yes</td><td>yes</td><td>1.9</td><td>4.7</td><td>39.7</td><td>2.49</td><td>1.17</td><td>3,044</td><td>7,894</td><td>same</td></tr><tr><td>J20</td><td class="l">Freshwater → Niton</td><td>22.72</td><td>18.4</td><td>yes</td><td>no</td><td>1.2</td><td>1.7</td><td>22.4</td><td>1.42</td><td>1.10</td><td>1,554</td><td>2,320</td><td>same</td></tr><tr><td>J21</td><td class="l">Bonchurch → Gurnard</td><td>24.63</td><td>27.9</td><td>yes</td><td>no</td><td>4.1</td><td>5.8</td><td>45.7</td><td>1.41</td><td>1.12</td><td>7,842</td><td>10,036</td><td>same</td></tr><tr><td>J22</td><td class="l">St Helens → Calbourne</td><td>27.14</td><td>23.0</td><td>yes</td><td>yes</td><td>2.3</td><td>6.2</td><td>49.8</td><td>2.67</td><td>1.15</td><td>4,106</td><td>10,784</td><td>other path</td></tr><tr><td>J23</td><td class="l">Newchurch → Easton</td><td>29.57</td><td>23.9</td><td>yes</td><td>yes</td><td>2.4</td><td>4.1</td><td>36.1</td><td>1.73</td><td>1.13</td><td>4,052</td><td>6,714</td><td>same</td></tr><tr><td>J24</td><td class="l">Totland → Whitwell</td><td>26.09</td><td>22.5</td><td>yes</td><td>no</td><td>1.6</td><td>2.2</td><td>24.6</td><td>1.35</td><td>1.13</td><td>2,680</td><td>3,498</td><td>same</td></tr><tr><td>J25</td><td class="l">Winford → Totland</td><td>32.38</td><td>28.2</td><td>yes</td><td>yes</td><td>3.1</td><td>4.2</td><td>35.5</td><td>1.33</td><td>1.16</td><td>5,904</td><td>7,118</td><td>same</td></tr><tr><td>J26</td><td class="l">Colwell Bay → Binstead</td><td>30.11</td><td>31.2</td><td>yes</td><td>yes</td><td>3.4</td><td>5.7</td><td>46.8</td><td>1.68</td><td>1.17</td><td>6,138</td><td>9,482</td><td>other time</td></tr><tr><td>J27</td><td class="l">Ryde → Easton</td><td>30.59</td><td>31.6</td><td>yes</td><td>yes</td><td>3.9</td><td>6.2</td><td>49.9</td><td>1.60</td><td>1.12</td><td>6,788</td><td>10,300</td><td>other time</td></tr></tbody></table></div></details>
+    </div>
+  </section>
+
+  <section class="section" id="target">
+    <div class="lede">
+      <h2>What the 1.3× target is measured against</h2>
+      <p>Reading the tags costs almost nothing: 0.65 µs per road visited, against 0.63 µs with no area rule. Polygons cost 6.62 µs.</p>
+      <p>The rule itself costs more than the check. Lowering priority inside the areas makes the search visit 1.52× as many roads overall, and up to 3.1× on one journey. The same happens with polygons, because the search is identical.</p>
+      <p>So the answer depends on the baseline. Tags alone, measured with the same statements switched off (<code>area_newport &amp;&amp; false</code>), came to 1.13× overall and at most 1.27× on any journey. With the rule active it was 1.56× overall, and 18 of 27 journeys were above 1.3×. All 18 were journeys where the rule makes the search visit more roads.</p>
+      <p class="note">Your rules and test journeys will decide where this lands. I would agree which baseline counts before quoting a pass.</p>
+    </div>
+    <div class="fig">
+      <h3>Cost per road the search visits</h3>
+      <p class="cap">Total routing time ÷ roads visited, over the 27 journeys.</p>
+      <svg viewBox="0 0 600 108" role="img" aria-label="No area rule: 0.63 µs; Area tags: 0.65 µs; Polygons in request: 6.62 µs"><text x="180" y="21.55" text-anchor="end" font-size="13">No area rule</text><rect x="190" y="8" width="29.8" height="18" rx="2" fill="#6b7a83" data-tip="No area rule: 0.63 µs"/><text x="225.84080207836092" y="21.55" font-size="13" font-weight="600" fill="#14222a">0.63 µs</text><text x="180" y="55.55" text-anchor="end" font-size="13">Area tags</text><rect x="190" y="42" width="30.7" height="18" rx="2" fill="#1f5fa8" data-tip="Area tags: 0.65 µs"/><text x="226.6561077068477" y="55.55" font-size="13" font-weight="600" fill="#14222a">0.65 µs</text><text x="180" y="89.55" text-anchor="end" font-size="13">Polygons in request</text><rect x="190" y="76" width="314.3" height="18" rx="2" fill="#a8236f" data-tip="Polygons in request: 6.62 µs"/><text x="510.2857142857143" y="89.55" font-size="13" font-weight="600" fill="#14222a">6.62 µs</text></svg>
+      <h3 style="margin-top:18px">Roads the search visits</h3>
+      <p class="cap">Sum over the 27 journeys. Tags and polygons visit exactly the same roads.</p>
+      <svg viewBox="0 0 600 108" role="img" aria-label="No area rule: 81,302; Rule with tags: 123,302; Rule with polygons: 123,302"><text x="180" y="21.55" text-anchor="end" font-size="13">No area rule</text><rect x="190" y="8" width="207.2" height="18" rx="2" fill="#6b7a83" data-tip="No area rule: 81,302"/><text x="403.23148969892736" y="21.55" font-size="13" font-weight="600" fill="#14222a">81,302</text><text x="180" y="55.55" text-anchor="end" font-size="13">Rule with tags</text><rect x="190" y="42" width="314.3" height="18" rx="2" fill="#1f5fa8" data-tip="Rule with tags: 123,302"/><text x="510.2857142857143" y="55.55" font-size="13" font-weight="600" fill="#14222a">123,302</text><text x="180" y="89.55" text-anchor="end" font-size="13">Rule with polygons</text><rect x="190" y="76" width="314.3" height="18" rx="2" fill="#a8236f" data-tip="Rule with polygons: 123,302"/><text x="510.2857142857143" y="89.55" font-size="13" font-weight="600" fill="#14222a">123,302</text></svg>
+    </div>
+  </section>
+
+  <section class="section" id="shortcut">
+    <div class="lede">
+      <h2>Why not GraphHopper's built-in custom areas?</h2>
+      <p>GraphHopper already reads area files at import (<code>custom_areas.directory</code>). It looks each edge up by one point: its middle point (<code>OSMReader.setArtificialWayTags</code>). Request-time areas instead ask whether the polygon touches the edge anywhere. Wherever an edge crosses or touches a boundary, the two can disagree.</p>
+      <p>I built that version too and ran it on the same journeys. 801 edges disagreed with the request-time test, 475 of them car roads. 5 of the 27 journeys came back with a different time or distance, and 2 took a different path:</p>
+      <ul class="plain"><li><button type="button" class="linkish" data-show="J10">Seaview → Whippingham</button>: 13.48 km by polygons, 14.50 km by the shortcut</li><li><button type="button" class="linkish" data-show="J22">St Helens → Calbourne</button>: 27.14 km by polygons, 24.49 km by the shortcut</li></ul>
+      <p class="note">The tags here run GraphHopper's own whole-edge test on the stored geometry during import, so they agree by construction, and the check after import proves it.</p>
+    </div>
+    <div class="fig">
+      <h3>One point against the whole edge</h3>
+      <svg viewBox="0 0 600 236" role="img" aria-label="A road edge crosses an area boundary. Its middle point is outside, so the built-in lookup says outside; the polygon touches the edge, so request-time areas and the area tags say inside.">
+  <rect x="340" y="14" width="244" height="150" fill="rgba(168,35,111,0.08)" stroke="#a8236f" stroke-width="2" stroke-dasharray="8 5"/>
+  <text x="572" y="36" text-anchor="end" font-size="13" fill="#a8236f" font-weight="600">area</text>
+  <path d="M30 130 L230 104 L430 78" fill="none" stroke="#14222a" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="30" cy="130" r="6" fill="#14222a"/><circle cx="430" cy="78" r="6" fill="#14222a"/>
+  <circle cx="230" cy="104" r="7" fill="#b56d00" stroke="#fff" stroke-width="2"/>
+  <text x="230" y="134" text-anchor="middle" font-size="12.5" fill="#b56d00" font-weight="600">middle point: outside</text>
+  <text x="430" y="62" text-anchor="middle" font-size="12.5" fill="#14222a">far end: inside</text>
+  <text x="0" y="196" font-size="13" fill="#14222a"><tspan font-weight="600" fill="#1f5fa8">Inside</tspan> for request-time polygons and for the area tags.</text>
+  <text x="0" y="220" font-size="13" fill="#14222a"><tspan font-weight="600" fill="#b56d00">Outside</tspan> for GraphHopper's built-in custom_areas lookup.</text>
+</svg>
+      <p class="cap" style="margin-top:10px">Two more details copied exactly: GraphHopper's quick reject uses the box of the edge's two end nodes only, and the test runs on coordinates rounded to the 1e-7 degree precision the graph stores. Unit tests cover both against <code>CustomWeightingHelper.in</code>, plus over 15,000 random edges on concave polygons, some with holes.</p>
+    </div>
+  </section>
+
+  <section class="section" id="plug">
+    <div class="lede">
+      <h2>How it plugs into your server</h2>
+      <p>The plugin is five small Java classes. It registers <code>area_&lt;id&gt;</code> yes/no values and a parser that sets them while edges are created, so you still import with the normal command.</p>
+      <p>GraphHopper's web server creates <code>new GraphHopper()</code> itself, so it needs a five-line patch to pass in the area file. Requests then use <code>area_newport</code> where they used <code>in_newport</code>. The prefix cannot be <code>in_</code>, because GraphHopper 11 rejects encoded value names that start with it.</p>
+      <p>The four tags fit in spare bits: edge flags stayed at 7 bytes and the graph grew by 1,414 bytes. Import time on the island was 0.9 s without tags and 0.9 s with them, which is within run-to-run noise.</p>
+    </div>
+    <div class="fig">
+      <p class="file">web-bundle/…/GraphHopperManaged.java (patch applies cleanly to the 11.0 tag)</p>
+      <pre tabindex="0" aria-label="Server patch">@@ -36,6 +36,11 @@
+         } else {
+             graphHopper = new GraphHopper();
+         }
+<span class="add">+        // Area tags: yes/no road tags worked out once at import (see areatags/README).</span>
+<span class="add">+        String areaTagsFile = configuration.getString("area_tags.file", "");</span>
+<span class="add">+        if (!areaTagsFile.isEmpty())</span>
+<span class="add">+            graphHopper.setImportRegistry(new areatags.AreaTagImportRegistry(</span>
+<span class="add">+                    areatags.AreaTags.load(java.nio.file.Paths.get(areaTagsFile))));</span>
+         graphHopper.init(configuration);
+     }</pre>
+      <div class="cols2">
+        <div><p class="file">config.yml</p><pre tabindex="0" aria-label="config.yml lines">area_tags.file: areas.geojson
+graph.encoded_values: car_access,
+  car_average_speed, road_access,
+  area_newport, area_ryde,
+  area_aonb, area_seaview</pre></div>
+        <div><p class="file">After import: check every edge</p><pre tabindex="0" aria-label="Check command output">50573 edges checked in 312 ms
+ area_newport 7488 in, 0 disagree
+ area_ryde 3706 in, 0 disagree
+ area_aonb 15585 in, 0 disagree
+ area_seaview 1129 in, 0 disagree</pre></div>
+      </div>
+      <p class="file">POST /route body after the change (283 bytes compact; before: 271,950)</p>
+      <pre tabindex="0" aria-label="Request body after the change">{
+  "points" : [ [ -1.16037, 50.72999 ], [ -1.51522, 50.6749 ] ],
+  "profile" : "car",
+  "ch.disable" : true,
+  "custom_model" : {
+    "priority" : [ {
+      "if" : "area_aonb",
+      "multiply_by" : "0.7"
+    }, {
+      "if" : "area_newport",
+      "multiply_by" : "0.4"
+    }, {
+      "if" : "area_seaview",
+      "multiply_by" : "0.2"
+    } ],
+    "speed" : [ {
+      "if" : "area_ryde",
+      "limit_to" : "30"
+    } ]
+  }
+}</pre>
+    </div>
+  </section>
+
+  <section class="section" id="trust">
+    <div class="lede">
+      <h2>Checks on the build itself</h2>
+      <p>My sandbox cannot reach Maven Central, so GraphHopper 11.0 was compiled from its git tag against Ubuntu's library jars, including HPPC 0.7.2 instead of 0.8.1. Before trusting any timing from it, I ran GraphHopper's own test suites on this build.</p>
+      <p class="note">The only source not compiled is the optional legal-speed calculator, which needs a Kotlin library; it is off by default and was replaced by a stub that fails if called.</p>
+    </div>
+    <div class="fig">
+      <ul class="checks">
+        <li><b>2,574 pass</b><span>GraphHopper 11.0's own core and web-api tests on this build: 0 failed, 16 skipped upstream, 2 stopped by their own assumptions (for example "loop shortcuts only exist for edge-based CH").</span></li>
+        <li><b>12 pass</b><span>Plugin tests: crossing, touching, bending and rounded edges, rectangles, holes and multipolygons, random edges, bad names and invalid polygons, plus a second dataset (Andorra, from GraphHopper's test files) with 0 disagreements.</span></li>
+        <li><b>Identical</b><span>The patched <code>GraphHopperManaged</code> started from a server-style config and answered real POST /route JSON bodies: Ryde → Easton, 30.59 km, same route before and after.</span></li>
+        <li><b>2020-07-21</b><span>Isle of Wight extract from Geofabrik, 6.9 MB, 43,356 junctions and 50,573 edges. Boundaries are OSM relations: three civil parishes and the AONB.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="measured">
+    <div class="lede">
+      <h2>Measured, and not yet</h2>
+      <p>Everything above came from the scripts in the download, on a 2-core Linux sandbox with Java 21.0.12.1.</p>
+      <p><a href="area-tags-source.zip" download>Plugin source, tests, scripts and raw results</a> (zip, 231 KB). The OSM extract is not included; the README says where it comes from.</p>
+    </div>
+    <div class="fig cols2">
+      <div>
+        <h3>Measured here</h3>
+        <ul class="plain">
+          <li>Route equality on 27 journeys, flexible and landmarks</li>
+          <li>Every edge's tag against GraphHopper's request-time test</li>
+          <li>Routing time, 25 runs per request in shuffled order</li>
+          <li>Cost of the tag check apart from the rule's effect</li>
+          <li>The middle-point shortcut, edge by edge and route by route</li>
+          <li>The server path, through the real patch and real request JSON</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Not measured yet</h3>
+        <ul class="plain">
+          <li>Your UK graph: timings at that size, and the 5-second target</li>
+          <li>Your four boundaries, 27 journeys and timing script</li>
+          <li>Windows: the code is plain Java, but I ran it on Linux only</li>
+          <li>A Maven build: the <code>pom.xml</code> is written but Maven Central was blocked here</li>
+          <li>CH profiles: possible with tags, not tested</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <p>Map and road data © OpenStreetMap contributors, available under the Open Database Licence. Extract by Geofabrik (OSM data as of 2020-07-21). GraphHopper is Apache 2.0 licensed. This page is not affiliated with GraphHopper GmbH.</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>
